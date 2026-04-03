@@ -1,4 +1,3 @@
-// 이수연 프로님이 새로 발급받으신 API 키입니다.
 const API_KEY = "AIzaSyBgn2uGMqgeZVvaf-5zx1Cxy7pqsbflwTM"; 
 
 window.generatePlan = async function() {
@@ -12,51 +11,47 @@ window.generatePlan = async function() {
         return;
     }
 
-    // 로딩 시작
     btn.disabled = true;
-    btn.innerText = "⏳ AI가 커리큘럼을 구성 중입니다...";
+    btn.innerText = "⏳ ChatGPT가 기획안을 작성 중입니다...";
     resultSection.classList.remove('hidden');
-    resultContainer.innerHTML = "<p class='text-center p-10 text-blue-600 font-bold animate-pulse text-lg'>새로운 API 키로 연결을 시도 중입니다. 잠시만 기다려주세요!</p>";
+    resultContainer.innerHTML = "<p class='text-center p-10 text-green-600 font-bold animate-pulse text-lg'>GPT-4o 모델에 연결 중입니다. 잠시만 기다려주세요!</p>";
 
     try {
-        // ✅ 최신 표준 v1beta 주소를 사용합니다.
-        const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${API_KEY}`;
-        
-        const response = await fetch(url, {
+        // OpenAI 표준 API 호출 주소입니다.
+        const response = await fetch("https://api.openai.com/v1/chat/completions", {
             method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
+            headers: {
+                'Content-Type': 'application/json',
+                'Authorization': `Bearer ${API_KEY}`
+            },
             body: JSON.stringify({
-                contents: [{ 
-                    parts: [{ text: input + " 이 강사/콘텐츠 정보를 바탕으로 교육 커리큘럼 3가지를 제안해줘. 수강 대상과 학습 목표를 포함해서 한국어로 작성해줘." }] 
-                }]
+                model: "gpt-4o-mini", // 가장 빠르고 저렴한 최신 모델입니다.
+                messages: [
+                    { role: "system", content: "당신은 역량 있는 교육 커리큘럼 설계자입니다." },
+                    { role: "user", content: input + " 이 내용을 바탕으로 교육 커리큘럼 3가지를 제안해줘. 한국어로 작성해줘." }
+                ],
+                temperature: 0.7
             })
         });
 
         const data = await response.json();
-        
-        // 구글 서버 에러 응답 확인
+
         if (data.error) {
-            console.error("구글 에러 상세:", data.error);
             throw new Error(data.error.message);
         }
 
-        if (data.candidates && data.candidates[0].content) {
-            const text = data.candidates[0].content.parts[0].text;
-            
-            // 결과를 가독성 좋게 출력
+        if (data.choices && data.choices[0].message) {
+            const text = data.choices[0].message.content;
             resultContainer.innerHTML = `
-                <div class="bg-white border-2 border-blue-50 p-8 rounded-2xl shadow-inner whitespace-pre-wrap leading-relaxed text-gray-800 text-lg">
+                <div class="bg-white border-2 border-green-50 p-8 rounded-2xl shadow-inner whitespace-pre-wrap leading-relaxed text-gray-800 text-lg">
                     ${text}
                 </div>
             `;
-        } else {
-            throw new Error("결과 데이터가 비어 있습니다.");
         }
-
     } catch (error) {
-        console.error("최종 에러 로그:", error);
-        alert("🚨 에러 발생: " + error.message);
-        resultContainer.innerHTML = `<p class='text-red-500 p-4 font-bold text-center border border-red-100 rounded-lg'>오류가 발생했습니다: ${error.message}</p>`;
+        console.error(error);
+        alert("🚨 에러: " + error.message);
+        resultContainer.innerHTML = `<p class='text-red-500 p-4 font-bold text-center'>오류 발생: ${error.message}</p>`;
     } finally {
         btn.disabled = false;
         btn.innerText = "🚀 강의 기획안 생성하기";
