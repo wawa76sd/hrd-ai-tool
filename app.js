@@ -1,4 +1,4 @@
-const API_KEY = "AIzaSyBgn2uGMqgeZVvaf-5zx1Cxy7pqsbflwTM"; 
+const API_KEY = "AIzaSyCwSXZkdvejvGzNC3wpH0IrJaZWArBf8xM"; 
 
 window.generatePlan = async function() {
     const input = document.getElementById('youtubeInput').value;
