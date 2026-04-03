@@ -12,13 +12,13 @@ window.generatePlan = async function() {
     }
 
     btn.disabled = true;
-    btn.innerText = "⏳ AI가 커리큘럼을 짜는 중입니다...";
+    btn.innerText = "⏳ AI가 커리큘럼을 구성 중입니다...";
     resultSection.classList.remove('hidden');
-    resultContainer.innerHTML = "<p class='text-center p-10 text-blue-600 font-bold animate-pulse'>모델 서버에 접속 중입니다. 잠시만 기다려주세요!</p>";
+    resultContainer.innerHTML = "<p class='text-center p-10 text-blue-600 font-bold animate-pulse text-lg'>모델 서버와 최종 연결을 시도 중입니다. 잠시만 기다려주세요!</p>";
 
     try {
-        // ✅ 구글 API의 가장 확실한 '정석' 주소입니다. (v1beta + models 경로)
-        const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${API_KEY}`;
+        // ✅ 모델명을 gemini-1.5-flash-latest로 구체화했습니다.
+        const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash-latest:generateContent?key=${API_KEY}`;
         
         const response = await fetch(url, {
             method: 'POST',
@@ -38,11 +38,19 @@ window.generatePlan = async function() {
 
         if (data.candidates && data.candidates[0].content) {
             const text = data.candidates[0].content.parts[0].text;
-            resultContainer.innerHTML = `<div class="bg-white border-2 border-blue-50 p-8 rounded-2xl shadow-inner whitespace-pre-wrap text-gray-800 text-lg">${text}</div>`;
+            resultContainer.innerHTML = `
+                <div class="bg-white border-2 border-blue-50 p-8 rounded-2xl shadow-inner whitespace-pre-wrap leading-relaxed text-gray-800 text-lg">
+                    ${text}
+                </div>
+            `;
+        } else {
+            throw new Error("결과 데이터 형식이 올바르지 않습니다.");
         }
+
     } catch (error) {
-        alert("🚨 에러: " + error.message);
-        resultContainer.innerHTML = `<p class='text-red-500 p-4 font-bold text-center'>오류 발생: ${error.message}</p>`;
+        console.error("에러 상세:", error);
+        alert("🚨 에러 발생: " + error.message);
+        resultContainer.innerHTML = `<p class='text-red-500 p-4 font-bold text-center border border-red-100 rounded-lg'>오류: ${error.message}</p>`;
     } finally {
         btn.disabled = false;
         btn.innerText = "🚀 강의 기획안 생성하기";
