@@ -1,6 +1,4 @@
-// 1. 여기서 새로 만든 키가 있다면 그걸 넣어주세요. 
-// (없다면 기존 키 AIzaSyAP...를 그대로 쓰셔도 됩니다.)
-const API_KEY = "AIzaSyAPwaMsCctznzn4TgJE84-lCY0aE0Fr8MM"; 
+const API_KEY = "AIzaSyBgn2uGMqgeZVvaf-5zx1Cxy7pqsbflwTM"; 
 
 window.generatePlan = async function() {
     const input = document.getElementById('youtubeInput').value;
