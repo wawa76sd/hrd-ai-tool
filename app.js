@@ -12,13 +12,13 @@ window.generatePlan = async function() {
     }
 
     btn.disabled = true;
-    btn.innerText = "⏳ AI가 커리큘럼을 구성 중입니다...";
+    btn.innerText = "⏳ AI가 응답 중입니다...";
     resultSection.classList.remove('hidden');
-    resultContainer.innerHTML = "<p class='text-center p-10 text-blue-600 font-bold animate-pulse text-lg'>모델 서버와 최종 연결을 시도 중입니다. 잠시만 기다려주세요!</p>";
+    resultContainer.innerHTML = "<p class='text-center p-10 text-blue-600 font-bold animate-pulse text-lg'>서버 응답을 기다리고 있습니다. 잠시만 기다려주세요!</p>";
 
     try {
-        // ✅ 모델명을 gemini-1.5-flash-latest로 구체화했습니다.
-        const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash-latest:generateContent?key=${API_KEY}`;
+        // ✅ [가장 안정적인 조합] v1 주소 + gemini-pro 모델입니다.
+        const url = `https://generativelanguage.googleapis.com/v1/models/gemini-pro:generateContent?key=${API_KEY}`;
         
         const response = await fetch(url, {
             method: 'POST',
@@ -44,11 +44,11 @@ window.generatePlan = async function() {
                 </div>
             `;
         } else {
-            throw new Error("결과 데이터 형식이 올바르지 않습니다.");
+            throw new Error("서버로부터 결과값을 받지 못했습니다.");
         }
 
     } catch (error) {
-        console.error("에러 상세:", error);
+        console.error("상세 에러:", error);
         alert("🚨 에러 발생: " + error.message);
         resultContainer.innerHTML = `<p class='text-red-500 p-4 font-bold text-center border border-red-100 rounded-lg'>오류: ${error.message}</p>`;
     } finally {
