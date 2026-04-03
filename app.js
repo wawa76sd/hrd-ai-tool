@@ -17,8 +17,8 @@ window.generatePlan = async function() {
     resultContainer.innerHTML = "<p class='text-center p-10 text-blue-600 font-bold animate-pulse text-lg'>커리큘럼을 구성하고 있습니다. 잠시만 기다려주세요!</p>";
 
     try {
-        // ✅ 최종 정답 주소: v1beta를 사용하되 모델명 형식을 맞춥니다.
-        const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${API_KEY}`;
+        // ✅ 최신 표준 주소: v1을 사용하고 모델 경로를 명확히 지정합니다.
+        const url = `https://generativelanguage.googleapis.com/v1/models/gemini-1.5-flash:generateContent?key=${API_KEY}`;
         
         const response = await fetch(url, {
             method: 'POST',
@@ -32,7 +32,9 @@ window.generatePlan = async function() {
 
         const data = await response.json();
         
+        // 구글 서버 에러 메시지 상세 출력
         if (data.error) {
+            console.error("상세 에러 내용:", data.error);
             throw new Error(data.error.message);
         }
 
@@ -48,7 +50,7 @@ window.generatePlan = async function() {
         }
 
     } catch (error) {
-        console.error("최종 에러:", error);
+        console.error("최종 에러 로그:", error);
         alert("🚨 에러 발생: " + error.message);
         resultContainer.innerHTML = `<p class='text-red-500 p-4 font-bold text-center border border-red-200 rounded-lg'>오류: ${error.message}</p>`;
     } finally {
