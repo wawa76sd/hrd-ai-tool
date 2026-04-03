@@ -1,5 +1,5 @@
 JavaScript
-async function generatePlan() {
+window.generatePlan = async function() {
     const input = document.getElementById('youtubeInput').value;
     const btn = document.getElementById('btn');
     const container = document.getElementById('resultContainer');
