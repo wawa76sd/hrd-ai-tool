@@ -12,13 +12,13 @@ window.generatePlan = async function() {
     }
 
     btn.disabled = true;
-    btn.innerText = "⏳ 기획안 생성 중...";
+    btn.innerText = "⏳ AI가 기획안을 작성 중입니다...";
     resultSection.classList.remove('hidden');
-    resultContainer.innerHTML = "<p class='text-center p-4 text-blue-500 font-bold'>AI가 강의안을 구성하고 있습니다...</p>";
+    resultContainer.innerHTML = "<p class='text-center p-10 text-blue-600 font-bold animate-pulse text-lg'>커리큘럼을 구성하고 있습니다. 잠시만 기다려주세요!</p>";
 
     try {
-        // ✅ 주소를 가장 확실한 정석 버전으로 변경했습니다.
-        const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${API_KEY}`;
+        // ✅ 최신 표준 주소: v1을 사용하고 모델 경로를 명확히 지정합니다.
+        const url = `https://generativelanguage.googleapis.com/v1/models/gemini-1.5-flash:generateContent?key=${API_KEY}`;
         
         const response = await fetch(url, {
             method: 'POST',
@@ -32,23 +32,28 @@ window.generatePlan = async function() {
 
         const data = await response.json();
         
-        // 🚨 만약 구글 서버에서 에러를 보냈다면 팝업으로 띄웁니다.
+        // 구글 서버 에러 메시지 상세 출력
         if (data.error) {
-            throw new Error(`Google API 에러: ${data.error.message}`);
+            console.error("상세 에러 내용:", data.error);
+            throw new Error(data.error.message);
         }
 
         if (data.candidates && data.candidates[0].content) {
             const text = data.candidates[0].content.parts[0].text;
-            resultContainer.innerHTML = `<div class="bg-blue-50 p-8 rounded-xl shadow-inner whitespace-pre-wrap leading-relaxed text-gray-800">${text}</div>`;
+            // 결과를 더 예쁘게 출력하기 위한 처리
+            resultContainer.innerHTML = `
+                <div class="bg-white border-2 border-blue-50 p-8 rounded-2xl shadow-inner whitespace-pre-wrap leading-relaxed text-gray-800 text-lg">
+                    ${text}
+                </div>
+            `;
         } else {
-            console.log("전체 응답 데이터:", data); // 분석용 로그
-            throw new Error("결과 데이터 형식이 예상과 다릅니다.");
+            throw new Error("결과 형식이 올바르지 않습니다.");
         }
 
     } catch (error) {
-        console.error("에러 상세 정보:", error);
-        alert("에러가 발생했습니다: " + error.message);
-        resultContainer.innerHTML = `<p class='text-red-500 p-4 font-bold'>오류 발생: ${error.message}</p>`;
+        console.error("최종 에러 로그:", error);
+        alert("🚨 에러 발생: " + error.message);
+        resultContainer.innerHTML = `<p class='text-red-500 p-4 font-bold text-center border border-red-200 rounded-lg'>오류: ${error.message}</p>`;
     } finally {
         btn.disabled = false;
         btn.innerText = "🚀 강의 기획안 생성하기";
