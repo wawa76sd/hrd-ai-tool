@@ -14,11 +14,13 @@ window.generatePlan = async function() {
     btn.disabled = true;
     btn.innerText = "⏳ 기획안 생성 중...";
     resultSection.classList.remove('hidden');
-    resultContainer.innerHTML = "<p class='text-center p-4 text-blue-500 font-bold'>AI가 강의안을 구성하고 있습니다. 잠시만 기다려주세요!</p>";
+    resultContainer.innerHTML = "<p class='text-center p-4 text-blue-500 font-bold'>AI가 강의안을 구성하고 있습니다...</p>";
 
     try {
-        // ✅ 수정된 부분: v1beta 대신 v1을 쓰고 모델 경로를 정확히 맞췄습니다.
-        const response = await fetch(`https://generativelanguage.googleapis.com/v1/models/gemini-1.5-flash:generateContent?key=${API_KEY}`, {
+        // ✅ 주소를 가장 확실한 정석 버전으로 변경했습니다.
+        const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${API_KEY}`;
+        
+        const response = await fetch(url, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({
@@ -30,18 +32,23 @@ window.generatePlan = async function() {
 
         const data = await response.json();
         
-        // 데이터가 잘 왔는지 확인하는 안전 장치
+        // 🚨 만약 구글 서버에서 에러를 보냈다면 팝업으로 띄웁니다.
+        if (data.error) {
+            throw new Error(`Google API 에러: ${data.error.message}`);
+        }
+
         if (data.candidates && data.candidates[0].content) {
             const text = data.candidates[0].content.parts[0].text;
             resultContainer.innerHTML = `<div class="bg-blue-50 p-8 rounded-xl shadow-inner whitespace-pre-wrap leading-relaxed text-gray-800">${text}</div>`;
         } else {
-            throw new Error("응답 데이터 형식이 올바르지 않습니다.");
+            console.log("전체 응답 데이터:", data); // 분석용 로그
+            throw new Error("결과 데이터 형식이 예상과 다릅니다.");
         }
 
     } catch (error) {
-        console.error(error);
-        alert("에러가 발생했습니다. 잠시 후 다시 시도해주세요!");
-        resultContainer.innerHTML = `<p class='text-red-500 p-4'>오류 발생: ${error.message}</p>`;
+        console.error("에러 상세 정보:", error);
+        alert("에러가 발생했습니다: " + error.message);
+        resultContainer.innerHTML = `<p class='text-red-500 p-4 font-bold'>오류 발생: ${error.message}</p>`;
     } finally {
         btn.disabled = false;
         btn.innerText = "🚀 강의 기획안 생성하기";
