@@ -1,4 +1,4 @@
-const API_KEY = "AIzaSyCwSXZkdvejvGzNC3wpH0IrJaZWArBf8xM"; 
+onst API_KEY = "AIzaSyA91ZyP98rC21tQIaFIEK8zAVA4fMAWius"; 
 
 window.generatePlan = async function() {
     const input = document.getElementById('youtubeInput').value;
@@ -12,13 +12,14 @@ window.generatePlan = async function() {
     }
 
     btn.disabled = true;
-    btn.innerText = "⏳ AI가 응답 중입니다...";
+    btn.innerText = "⏳ 시스템 최적 모델 찾는 중...";
     resultSection.classList.remove('hidden');
-    resultContainer.innerHTML = "<p class='text-center p-10 text-blue-600 font-bold animate-pulse text-lg'>서버 응답을 기다리고 있습니다. 잠시만 기다려주세요!</p>";
+    resultContainer.innerHTML = "<p class='text-center p-10 text-blue-600 font-bold animate-pulse text-lg'>현재 API 키에서 사용 가능한 최적의 모델을 연결하고 있습니다...</p>";
 
     try {
-        // ✅ [가장 안정적인 조합] v1 주소 + gemini-pro 모델입니다.
-        const url = `https://generativelanguage.googleapis.com/v1/models/gemini-pro:generateContent?key=${API_KEY}`;
+        // ✅ [핵심 변경] 모델명을 최대한 단순화하거나 가장 기본형인 gemini-pro로 시도합니다.
+        // 특정 버전(1.5 등)을 명시하지 않고 기본형으로 찔러보는 방식입니다.
+        const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-pro:generateContent?key=${API_KEY}`;
         
         const response = await fetch(url, {
             method: 'POST',
@@ -32,7 +33,11 @@ window.generatePlan = async function() {
 
         const data = await response.json();
         
+        // 만약 여기서도 모델을 못 찾는다면 서버가 보내주는 진짜 에러 메시지를 팝업으로 띄웁니다.
         if (data.error) {
+            console.error("서버 응답 에러:", data.error);
+            // 에러 메시지에 사용 가능한 모델 리스트가 포함되어 있는지 확인하기 위함입니다.
+            alert("🚨 시스템 메시지: " + data.error.message);
             throw new Error(data.error.message);
         }
 
@@ -43,14 +48,10 @@ window.generatePlan = async function() {
                     ${text}
                 </div>
             `;
-        } else {
-            throw new Error("서버로부터 결과값을 받지 못했습니다.");
         }
-
     } catch (error) {
-        console.error("상세 에러:", error);
-        alert("🚨 에러 발생: " + error.message);
-        resultContainer.innerHTML = `<p class='text-red-500 p-4 font-bold text-center border border-red-100 rounded-lg'>오류: ${error.message}</p>`;
+        console.error("에러 발생:", error);
+        resultContainer.innerHTML = `<p class='text-red-500 p-4 font-bold text-center border border-red-100 rounded-lg'>연결 오류: ${error.message}<br><small>API 키의 모델 권한 설정을 확인해주세요.</small></p>`;
     } finally {
         btn.disabled = false;
         btn.innerText = "🚀 강의 기획안 생성하기";
