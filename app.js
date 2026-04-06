@@ -1,4 +1,4 @@
-// 발급받으신 API 키 (AIzaSy...)
+// 이수연 프로님의 최신 API 키 적용
 const API_KEY = "AIzaSyA91ZyP98rC21tQIaFIEK8zAVA4fMAWius"; 
 
 window.generatePlan = async function() {
@@ -15,11 +15,11 @@ window.generatePlan = async function() {
     btn.disabled = true;
     btn.innerText = "⏳ 해커스 베테랑 설계자가 분석 중...";
     resultSection.classList.remove('hidden');
-    resultContainer.innerHTML = "<p class='text-center p-10 text-blue-600 font-bold animate-pulse text-lg'>해커스 교육그룹 기준에 맞춰 최적의 모델로 연결 중입니다...</p>";
+    resultContainer.innerHTML = "<p class='text-center p-10 text-blue-600 font-bold animate-pulse text-lg'>해커스 교육그룹 시스템에 최적화된 모델로 연결 중입니다...</p>";
 
     try {
-        // ✅ [해결책] v1beta 주소 + gemini-1.5-flash-latest 모델명을 사용합니다.
-        const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash-latest:generateContent?key=${API_KEY}`;
+        // ✅ [해결의 핵심] v1 대신 v1beta 주소를 사용합니다.
+        const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${API_KEY}`;
         
         const response = await fetch(url, {
             method: 'POST',
@@ -48,7 +48,7 @@ window.generatePlan = async function() {
         const data = await response.json();
         
         if (data.error) {
-            // 상세 에러 내용을 팝업으로 띄워 확인합니다.
+            // 에러 발생 시 팝업으로 상세 내용을 보여줍니다.
             throw new Error(data.error.message);
         }
 
