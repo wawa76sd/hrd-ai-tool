@@ -1,4 +1,4 @@
-const API_KEY = "AIzaSyA91ZyP98rC21tQIaFIEK8zAVA4fMAWius"; 
+const API_KEY = "AIzaSyD7CxqUWluW-gSlEBGBfsvdARQ9UnPeb98"; 
 
 window.generatePlan = async function() {
     const input = document.getElementById('youtubeInput').value;
@@ -12,57 +12,57 @@ window.generatePlan = async function() {
     }
 
     btn.disabled = true;
-    btn.innerText = "⏳ 해커스 베테랑 설계자가 분석 중...";
+    btn.innerText = "⏳ 분석 중...";
     resultSection.classList.remove('hidden');
-    resultContainer.innerHTML = "<p class='text-center p-10 text-blue-600 font-bold animate-pulse text-lg'>가장 안정적인 모델로 연결하여 강의안을 설계 중입니다...</p>";
 
     try {
-        // ✅ [가장 확실한 해결책] v1 주소와 가장 기본형인 gemini-pro 모델을 사용합니다.
-        const url = `https://generativelanguage.googleapis.com/v1/models/gemini-pro:generateContent?key=${API_KEY}`;
+        const url = `https://generativelanguage.googleapis.com/v1/models/gemini-1.5-flash-latest:generateContent?key=${API_KEY}`;
         
         const response = await fetch(url, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({
                 contents: [{
+                    role: "user",
                     parts: [{
-                        text: `당신은 해커스 교육그룹의 베테랑 교수설계자입니다. 
-                        다음 정보를 분석하여 반드시 아래의 [출력 양식]에 맞춰서만 답변하세요.
-                        설명이나 인사말은 생략하고 본문만 출력합니다.
+                        text: `당신은 해커스 교육그룹의 강의 기획 교수설계자입니다. 
+다음 정보를 분석하여 반드시 아래의 [출력 양식]에 맞춰서만 답변하세요.
 
-                        [분석 정보]: ${input}
+[분석 정보]: ${input}
 
-                        [출력 양식]:
-                        ■ 강의 대주제: (강의 분야 예시: '데이터 엔지니어링'처럼 큰 주제의 명사구로 작성)
-                        ■ 강의 분야: (구체적인 강의 주제 작성, 예시: 'AI 모델 성능 극대화를 위한 데이터 파이프라인 구축 및 관리')
-                        ■ 제작 내용:
-                        - 강의 세부 내용 1: (예시: 대용량 데이터의 수집, 저장, 가공 프로세스 자동화 시스템 설계)
-                        - 강의 세부 내용 2: (예시: 고성능 검색을 위한 벡터 데이터베이스(Vector DB) 구축 및 최적화)
-                        - 강의 세부 내용 3: (예시: 실시간 데이터 스트리밍 처리와 AI 학습용 데이터셋 관리 기법)`
+[출력 양식]:
+■ 강의 대주제:
+■ 강의 분야:
+■ 제작 내용:
+- 강의 세부 내용 1:
+- 강의 세부 내용 2:
+- 강의 세부 내용 3:`
                     }]
                 }]
             })
         });
 
         const data = await response.json();
-        
+
         if (data.error) {
-            // 에러가 나면 팝업으로 상세 내용을 보여줍니다.
             throw new Error(data.error.message);
         }
 
-        if (data.candidates && data.candidates[0].content) {
-            const text = data.candidates[0].content.parts[0].text;
-            resultContainer.innerHTML = `
-                <div class="bg-white border-2 border-blue-100 p-8 rounded-2xl shadow-sm whitespace-pre-wrap leading-relaxed text-gray-800 text-lg font-medium">
-                    ${text}
-                </div>
-            `;
+        const text = data?.candidates?.[0]?.content?.parts?.[0]?.text;
+
+        if (!text) {
+            throw new Error("응답 구조가 예상과 다릅니다.");
         }
+
+        resultContainer.innerHTML = `
+            <div class="bg-white border-2 border-blue-100 p-8 rounded-2xl shadow-sm whitespace-pre-wrap">
+                ${text}
+            </div>
+        `;
+
     } catch (error) {
-        console.error("에러 발생:", error);
-        alert("🚨 구글 서버 응답: " + error.message);
-        resultContainer.innerHTML = `<p class='text-red-500 p-4 font-bold text-center border border-red-100 rounded-lg'>오류: ${error.message}</p>`;
+        console.error(error);
+        alert("🚨 에러: " + error.message);
     } finally {
         btn.disabled = false;
         btn.innerText = "🚀 강의 기획안 생성하기";
