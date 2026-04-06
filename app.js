@@ -1,9 +1,7 @@
+// 발급받으신 API 키 (AIzaSy...)
 const API_KEY = "AIzaSyA91ZyP98rC21tQIaFIEK8zAVA4fMAWius"; 
 
-// 함수를 window 객체에 등록하여 HTML의 onclick과 확실히 연결합니다.
 window.generatePlan = async function() {
-    console.log("교수설계 시작!"); // 디버깅용
-
     const input = document.getElementById('youtubeInput').value;
     const btn = document.getElementById('btn');
     const resultSection = document.getElementById('resultSection');
@@ -14,15 +12,14 @@ window.generatePlan = async function() {
         return;
     }
 
-    // 로딩 상태 전환
     btn.disabled = true;
-    btn.innerText = "⏳ 베테랑 교수설계자가 분석 중...";
+    btn.innerText = "⏳ 해커스 베테랑 설계자가 분석 중...";
     resultSection.classList.remove('hidden');
-    resultContainer.innerHTML = "<p class='text-center p-10 text-blue-600 font-bold animate-pulse text-lg'>해커스 교육그룹의 기준에 맞춰 강의안을 설계하고 있습니다...</p>";
+    resultContainer.innerHTML = "<p class='text-center p-10 text-blue-600 font-bold animate-pulse text-lg'>해커스 교육그룹 기준에 맞춰 최적의 모델로 연결 중입니다...</p>";
 
     try {
-        // 가장 안정적인 v1 표준 주소와 모델명입니다.
-        const url = `https://generativelanguage.googleapis.com/v1/models/gemini-1.5-flash:generateContent?key=${API_KEY}`;
+        // ✅ [해결책] v1beta 주소 + gemini-1.5-flash-latest 모델명을 사용합니다.
+        const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash-latest:generateContent?key=${API_KEY}`;
         
         const response = await fetch(url, {
             method: 'POST',
@@ -51,24 +48,22 @@ window.generatePlan = async function() {
         const data = await response.json();
         
         if (data.error) {
+            // 상세 에러 내용을 팝업으로 띄워 확인합니다.
             throw new Error(data.error.message);
         }
 
         if (data.candidates && data.candidates[0].content) {
             const text = data.candidates[0].content.parts[0].text;
-            
-            // 해커스 스타일의 깔끔한 결과 출력
             resultContainer.innerHTML = `
                 <div class="bg-white border-2 border-blue-100 p-8 rounded-2xl shadow-sm whitespace-pre-wrap leading-relaxed text-gray-800 text-lg font-medium">
                     ${text}
                 </div>
             `;
         }
-
     } catch (error) {
-        console.error("설계 오류:", error);
-        alert("🚨 시스템 오류: " + error.message);
-        resultContainer.innerHTML = `<p class='text-red-500 p-4 font-bold text-center border border-red-100 rounded-lg'>오류가 발생했습니다: ${error.message}</p>`;
+        console.error("에러 발생:", error);
+        alert("🚨 구글 서버 응답: " + error.message);
+        resultContainer.innerHTML = `<p class='text-red-500 p-4 font-bold text-center border border-red-100 rounded-lg'>오류: ${error.message}</p>`;
     } finally {
         btn.disabled = false;
         btn.innerText = "🚀 강의 기획안 생성하기";
